@@ -33,6 +33,23 @@ class Blockchain {
     newBlock.hash = newBlock.calculateHash();
     this.chain.push(newBlock);
   }
+
+  isChainValid() {
+    for(let i = 1; i < this.chain.length; i++) {
+      const currentBlock = this.chain[i];
+      const prevBlock = this.chain[i - 1];
+
+      if(currentBlock.hash !== currentBlock.calculateHash()) {
+        return false;
+      }
+
+      if(currentBlock.prevHash !== prevBlock.hash) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 }
 
 const soonooCoin = new Blockchain();
@@ -40,5 +57,8 @@ soonooCoin.addBlock(new Block(1, new Date(), { amount: 5 }));
 soonooCoin.addBlock(new Block(2, new Date(), { amount: 10 }));
 soonooCoin.addBlock(new Block(3, new Date(), { amount: 2 }));
 
-console.log(JSON.stringify(soonooCoin, null, 4));
+console.log('Is Blockchain valid? ' + soonooCoin.isChainValid());
 
+soonooCoin.chain[1].data.amount = 3000;
+
+console.log('Is Blockchain valid? ' + soonooCoin.isChainValid());
