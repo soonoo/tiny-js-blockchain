@@ -7,17 +7,27 @@ class Block {
     this.data = data;
     this.prevHash = prevHash;
     this.hash = this.calculateHash();
+    this.nonce = 0;
   }
 
   calculateHash() {
     return sha256(this.index + this.prevHash
-      + this.timestamp + JSON.stringify(this.data)).toString();
+      + this.timestamp + JSON.stringify(this.data) + this.nonce).toString();
+  }
+   
+  mineBlock(difficulty) {
+    while(this.hash.substring(0, difficulty) !== Array(difficulty + 1).join('0')) {
+      this.nonce++;
+      this.hash = this.calculateHash();
+    }
+    console.log('Block mined: ' + this.hash);
   }
 }
 
 class Blockchain {
   constructor() {
     this.chain = [Blockchain.createGenesisBlock()];
+    this.difficulty = 3;
   }
 
   static createGenesisBlock() {
@@ -30,7 +40,7 @@ class Blockchain {
 
   addBlock(newBlock) {
     newBlock.prevHash = this.getLatestBlock().hash;
-    newBlock.hash = newBlock.calculateHash();
+    newBlock.mineBlock(this.difficulty);
     this.chain.push(newBlock);
   }
 
@@ -53,12 +63,11 @@ class Blockchain {
 }
 
 const soonooCoin = new Blockchain();
+
+console.log('Mining block 1...');
 soonooCoin.addBlock(new Block(1, new Date(), { amount: 5 }));
+console.log('Mining block 2...');
 soonooCoin.addBlock(new Block(2, new Date(), { amount: 10 }));
+console.log('Mining block 3...');
 soonooCoin.addBlock(new Block(3, new Date(), { amount: 2 }));
 
-console.log('Is Blockchain valid? ' + soonooCoin.isChainValid());
-
-soonooCoin.chain[1].data.amount = 3000;
-
-console.log('Is Blockchain valid? ' + soonooCoin.isChainValid());
